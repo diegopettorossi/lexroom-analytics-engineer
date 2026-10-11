@@ -1,0 +1,29 @@
+version: 2
+
+exposures:
+  - name: product_ama_module_quality_review
+    label: "Q1 - AMA quality trend per module"
+    type: analysis
+    maturity: medium
+    owner: {name: Product team}
+    description: Weekly AQI by legal module over the last 8 weeks (analyses/q1_module_weekly.sql), the 4-week comparison used to choose a focus (analyses/q1_module_quality_trend.sql), and thumbs-down reasons in the recent period.
+    depends_on: [ref('fct_ama_module_weekly'), ref('int_ama_event_enriched')]
+    url: https://github.com/diegopettorossi/lexroom-analytics-engineer/blob/main/analyses/q1_module_quality_trend.sql
+
+  - name: cs_account_health_risk
+    label: "Q2 - Workspaces at risk"
+    type: analysis
+    maturity: medium
+    owner: {name: Customer Success}
+    description: Ranked list of workspaces with deteriorating experience, with the signals behind each score.
+    depends_on: [ref('dim_workspace_risk')]
+    url: https://github.com/diegopettorossi/lexroom-analytics-engineer/blob/main/analyses/q2_workspaces_at_risk.sql
+
+  - name: leadership_ama_north_star
+    label: "Q3 - AMA Quality Index (North Star)"
+    type: dashboard
+    maturity: low
+    owner: {name: Leadership (CTO)}
+    description: Single weekly quality number for AMA with its trend over the last 8 weeks.
+    depends_on: [ref('fct_ama_module_weekly')]
+    url: https://github.com/diegopettorossi/lexroom-analytics-engineer/blob/main/analyses/q3_north_star_trend.sql

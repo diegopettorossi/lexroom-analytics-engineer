@@ -1,0 +1,35 @@
+version: 2
+models:
+  - name: stg_ama_feedback
+    description: '{{ doc("stg_ama_feedback") }}'
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments: {combination_of_columns: [feedback_id]}
+    columns:
+      - name: feedback_id
+        description: Id of one rating. Unique after staging; raw duplicates are reported on the seed.
+        data_tests:
+          - not_null
+      - name: event_id
+        description: The rated answer. Some ratings point to answers we do not have.
+        data_tests:
+          - relationships:
+              arguments: {to: "ref('stg_ama_events')", field: event_id}
+              config: {severity: warn}
+      - name: thumbs_raw
+        description: Thumbs value as received. Expected 1 or -1; anything else is a warning.
+        data_tests:
+          - accepted_values:
+              arguments: {values: [1, -1], quote: false}
+              config: {severity: warn}
+      - name: thumbs
+        description: Direction of the rating, from the sign of thumbs_raw. NULL when the raw value is 0 (no opinion).
+        data_tests:
+          - accepted_values:
+              arguments: {values: [-1, 1], quote: false}
+      - name: reason_tag
+        description: Why the user voted down, when they gave one. Blank becomes NULL. Not remapped.
+        data_tests:
+          - accepted_values:
+              arguments: {values: [wrong_answer, incomplete, hallucination, slow, other]}
+              config: {severity: warn}

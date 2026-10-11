@@ -1,0 +1,75 @@
+name: lexroom_analytics
+version: "1.0.0"
+config-version: 2
+profile: lexroom_analytics
+
+model-paths: ["models"]
+seed-paths: ["seeds"]
+analysis-paths: ["analyses"]
+macro-paths: ["macros"]
+
+# All business parameters live here: weights, thresholds, window lengths.
+# Override any of them for a sensitivity run with: dbt build --vars '{slow_latency_ms: 4000}'
+vars:
+  # Reference date for "last completed week". Pinned to the extract: Monday 2026-04-20 means the last
+  # completed week is w/c 13 Apr. Production: pass --vars '{as_of_date: null}' to use the run date.
+  as_of_date: "2026-04-20"
+  max_ingestion_lag_days: 2         # warn when the newest raw row is older than this at as_of_date
+  min_weekly_volume_ratio: 0.5      # warn when the last completed week is below this share of the prior average
+  weeks_window: 8                   # weeks shown in the trend analyses
+  period_weeks: 4                   # length of the "current" and "prior" periods for the risk score
+  latency_valid_max_ms: 120000      # above this a latency is a measurement error
+  slow_latency_ms: 5000             # a non-cached answer slower than this is "slow"
+  min_rated_for_signal: 10          # min rated answers in a period before a satisfaction signal counts
+  min_events_for_risk: 20           # min answers in the prior period before a workspace is scored
+  min_rated_high_confidence: 100    # min rated answers for a week to be flagged high confidence
+  min_merged_prs_for_signal: 5      # min merged PRs in a team-week before its lead time is flagged reliable
+
+  # AMA Quality Index weights (must sum to 1). See the fct_ama_module_weekly docs.
+  aqi_weights:
+    satisfaction: 0.50              # users' thumbs up / rated answers
+    grounded: 0.25                  # answers where RAG found at least one source
+    fast: 0.25                      # non-cached answers under slow_latency_ms
+
+  # Workspace risk score (weights must sum to 1; the risk_score range test fails if not).
+  # A signal scores weight x min(1, observed / full_alarm). Each key is a column in dim_workspace_risk.
+  risk_signals:
+    usage_decline:    {weight: 0.50, full_alarm: 0.50}   # share of volume lost vs the platform trend
+    satisfaction_drop: {weight: 0.50, full_alarm: 0.20}  # 20 percentage points, stored as a share (0.20)
+
+  # A score at or above the threshold gets the tier; anything below medium is low.
+  risk_tiers:
+    high: 50
+    medium: 25
+
+# Keep the rows behind every failing or warning test, in the `dq` schema, so they can be queried and handed to the source owner.
+data_tests:
+  +store_failures: true
+  +schema: dq
+
+# Seeds: only the types DuckDB cannot be trusted to infer (timestamps with a zone, dates).
+seeds:
+  lexroom_analytics:
+    +schema: raw
+    raw_events_ama:
+      +column_types: {created_at: timestamptz}
+    raw_feedback_ama:
+      +column_types: {created_at: timestamptz}
+    raw_users:
+      +column_types: {created_at: timestamptz}
+    raw_workspaces:
+      +column_types: {signup_date: date}
+    raw_engineering_prs:
+      +column_types: {created_at: timestamptz, merged_at: timestamptz}
+
+models:
+  lexroom_analytics:
+    staging:
+      +materialized: view
+      +schema: staging
+    intermediate:
+      +materialized: view
+      +schema: intermediate
+    marts:
+      +materialized: table
+      +schema: marts

@@ -1,0 +1,23 @@
+version: 2
+models:
+  - name: stg_workspaces
+    description: '{{ doc("stg_workspaces") }}'
+    columns:
+      - name: workspace_id
+        data_tests: [unique, not_null]
+      - name: country
+        description: IT, DE or ES; `unknown` when missing.
+        data_tests:
+          - accepted_values:
+              arguments: {values: [IT, DE, ES, unknown]}
+              config: {severity: warn}
+      - name: plan
+        data_tests:
+          - accepted_values:
+              arguments: {values: [free, pro, enterprise]}
+      - name: firm_size_bucket
+        description: Firm size band. Expected 1-5, 6-20, 21-100 or 100+.
+        data_tests:
+          - accepted_values:
+              arguments: {values: ["1-5", "6-20", "21-100", "100+"]}
+              config: {severity: warn}

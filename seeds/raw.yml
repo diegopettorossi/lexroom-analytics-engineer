@@ -1,0 +1,27 @@
+version: 2
+seeds:
+  - name: raw_events_ama
+    description: Raw AMA answer events as exported from the product (synthetic case data). Loaded as a seed for this local project.
+    data_tests:
+      # Source-level check: staging collapses exact duplicates, so this is where they stay visible.
+      - dbt_utils.unique_combination_of_columns:
+          arguments: {combination_of_columns: [event_id]}
+          config: {severity: error, warn_if: ">0", error_if: ">100"}
+    columns:
+      - name: event_id
+        description: Contains duplicate rows (identical). Collapsed in stg_ama_events.
+  - name: raw_feedback_ama
+    description: Raw thumbs up/down ratings on AMA answers.
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments: {combination_of_columns: [feedback_id]}
+          config: {severity: error, warn_if: ">0", error_if: ">50"}
+    columns:
+      - name: feedback_id
+        description: Contains duplicate ids (identical rows). Collapsed in stg_ama_feedback.
+  - name: raw_workspaces
+    description: Raw customer workspaces (accounts) with country, plan and size.
+  - name: raw_users
+    description: Raw user data with their info, link to workspaces and whether they are soft deleted.
+  - name: raw_engineering_prs
+    description: Raw pull requests for the optional DORA-style bonus. Typed in dbt_project.yml; read by stg_engineering_prs.

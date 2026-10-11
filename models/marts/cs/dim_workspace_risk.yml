@@ -1,0 +1,33 @@
+version: 2
+models:
+  - name: dim_workspace_risk
+    description: '{{ doc("dim_workspace_risk") }}'
+    data_tests:
+      - dbt_utils.expression_is_true:
+          name: risk_score_only_when_scored
+          arguments:
+            expression: "(risk_tier = 'not_scored') = (risk_score is null)"
+    columns:
+      - name: workspace_id
+        data_tests: [unique, not_null]
+      - name: usage_decline
+        description: Share of answer volume lost relative to the platform trend. 0 when the workspace moves with or above the platform.
+        data_tests:
+          - dbt_utils.accepted_range:
+              arguments: {min_value: 0}
+      - name: satisfaction_drop
+        description: Drop in the thumbs-up share, from 0 to 1. A value of 0.20 is 20 percentage points. 0 when either period has too few ratings.
+        data_tests:
+          - dbt_utils.accepted_range:
+              arguments: {min_value: 0}
+      - name: risk_score
+        description: 0 to 100, higher is riskier. NULL when the workspace is not scored.
+        data_tests:
+          - dbt_utils.accepted_range:
+              arguments: {min_value: 0, max_value: 100}
+      - name: risk_tier
+        description: high, medium or low from the risk_tiers var; not_scored when the prior period is too small.
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments: {values: [high, medium, low, not_scored]}

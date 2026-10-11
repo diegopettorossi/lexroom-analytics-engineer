@@ -1,0 +1,22 @@
+version: 2
+models:
+  - name: int_ama_event_enriched
+    description: '{{ doc("int_ama_event_enriched") }}'
+    data_tests:
+      # Same row count as staging: joining ratings neither multiplies nor drops answers.
+      - dbt_utils.equal_rowcount:
+          arguments:
+            compare_model: ref('stg_ama_events')
+    columns:
+      - name: event_id
+        data_tests: [unique, not_null]
+      - name: has_feedback
+        description: True when the answer has a usable thumbs up or down.
+      - name: thumbs
+        description: Final rating of the answer (latest one wins). NULL when unrated. The cleaned values are tested on stg_ama_feedback.
+      - name: reason_tag
+        description: Reason on a thumbs-down. `unspecified` when the user gave none. NULL on thumbs-up and unrated answers. The raw values are tested on stg_ama_feedback.
+      - name: is_zero_retrieval
+        description: True when RAG retrieved no source. Such answers are not grounded.
+      - name: fresh_latency_ms
+        description: Latency of non-cached answers with a trusted measurement; NULL otherwise.

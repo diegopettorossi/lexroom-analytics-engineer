@@ -1,0 +1,28 @@
+version: 2
+models:
+  - name: stg_ama_events
+    description: '{{ doc("stg_ama_events") }}'
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments: {combination_of_columns: [event_id]}
+    columns:
+      - name: event_id
+        description: Id of one AMA answer. Unique after staging; raw duplicates are reported on the seed.
+        data_tests:
+          - not_null
+      - name: workspace_id
+        description: Account the answer belongs to. Some point to workspaces missing from the workspace table.
+        data_tests:
+          - relationships:
+              arguments: {to: "ref('stg_workspaces')", field: workspace_id}
+              config: {severity: warn}
+      - name: module_tag
+        description: Lowercased, accents and non-letters removed, typo `civil` mapped to `civile`. A value outside the official list raises a warning.
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [civile, penale, tributario, lavoro, amministrativo, societario]
+              config: {severity: warn}
+      - name: is_valid_latency
+        description: False for negative latencies and values above latency_valid_max_ms. These answers still count, but latency metrics ignore them.

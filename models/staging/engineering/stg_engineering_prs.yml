@@ -1,0 +1,20 @@
+version: 2
+models:
+  - name: stg_engineering_prs
+    description: '{{ doc("stg_engineering_prs") }}'
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments: {combination_of_columns: [pr_id]}
+    columns:
+      - name: pr_id
+        data_tests: [not_null]
+      - name: team
+        data_tests: [not_null]
+      - name: is_merged
+        description: True when the PR has a merged_at timestamp. Open or closed-unmerged PRs are false.
+      - name: lead_time_minutes
+        description: Minutes from created_at to merged_at. NULL when the PR is not merged.
+        data_tests:
+          - dbt_utils.accepted_range:
+              arguments: {min_value: 0}
+              config: {where: "is_merged", severity: warn}

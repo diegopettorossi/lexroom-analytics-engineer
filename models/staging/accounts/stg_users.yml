@@ -1,0 +1,22 @@
+version: 2
+models:
+  - name: stg_users
+    description: '{{ doc("stg_users") }}'
+    columns:
+      - name: user_id
+        data_tests: [unique, not_null]
+      - name: workspace_id
+        description: Workspace the user belongs to. A few point at workspaces missing from the workspace table.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments: {to: "ref('stg_workspaces')", field: workspace_id}
+              config: {severity: warn}
+      - name: role
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments: {values: [partner, associate, paralegal, in_house_counsel]}
+      - name: is_deleted
+        description: Soft-deleted as of the extract. Not a churn event; there is no deletion date.
+        data_tests: [not_null]

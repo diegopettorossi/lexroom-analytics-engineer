@@ -1,0 +1,21 @@
+version: 2
+models:
+  - name: fct_pr_lead_time_weekly
+    description: '{{ doc("fct_pr_lead_time_weekly") }}'
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns: [team, week_start]
+    columns:
+      - name: team
+        data_tests: [not_null]
+      - name: week_start
+        data_tests: [not_null]
+      - name: merged_prs
+        description: PRs merged that week. Read with the lead time.
+      - name: median_lead_time_hours
+        data_tests:
+          - dbt_utils.accepted_range:
+              arguments: {min_value: 0}
+      - name: is_lead_time_reliable
+        description: True when merged_prs is at least min_merged_prs_for_signal.
