@@ -1,0 +1,30 @@
+name: dbt
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Install dbt packages
+        run: dbt deps --profiles-dir .
+
+      - name: Build models, seeds, and tests
+        run: dbt build --profiles-dir .
+
+      - name: Generate documentation
+        run: dbt docs generate --profiles-dir .

@@ -9,12 +9,16 @@ Lexroom has no analytics function and a small team, so one wrong number in front
 - Set up dbt on BigQuery with separate dev and prod datasets, and run CI on every pull request.
 - Ship a first AMA quality view, by module and by workspace, to Product and CS. It flags the latest weeks as possibly incomplete until Engineering confirms the volume question.
 
+
+
 ## Days 31-60: make what people use hard to break
 
 - Pause new models until the existing ones are trusted. Add keys, relationship tests, a reconciliation to raw row counts, and a freshness check to the models people already read.
 - Agree a written schema for AMA events (required fields, types, allowed values) with Engineering, drafted from the defects found in month one. CI then checks each Engineering pull request against it.
 - Build one usage table with one row per workspace per week, plus workspace and user attributes. Anything that does not fit that shape waits.
 - Review the workspace risk list with CS, account by account. Remove any signal that does not change which accounts CS contacts.
+
+
 
 ## Days 61-90: connect to revenue and set the next quarter
 
@@ -26,10 +30,15 @@ Lexroom has no analytics function and a small team, so one wrong number in front
 
 ## How I would work
 
-- **Three trust tiers.** Company-level and customer-facing models (the quality index, the CS risk list, anything the CTO sees) get full tests, a daily freshness target, and an alert when they break. Team dashboards get the same tests, with failures sent to a team channel. Exploratory models come with no guarantees, and their dbt descriptions say so.
+- **Propose/adopt a three trust tiers system:** 
+  - Company-level and customer-facing models (the quality index, the CS risk list, anything the CTO sees) get full tests, a daily freshness target, and an alert when they break.
+  - Team dashboards get the same tests, with failures sent to a team channel.
+  - Exploratory models come with no guarantees, and their dbt descriptions say so.
 - **Clear ownership.** Engineering owns the event schema. Each team owns the definitions of the metrics it uses. Analytics owns the SQL and the tests. A bad raw row becomes a ticket for the team that produces the data, not a patch inside a model.
 - **Visible quality.** Once a month I send each team one line: test pass rate, data freshness, and open source defects.
 - **Fewer requests, not more tools.** Before anyone adds a BI tool, I would publish a small set of certified models, each with a one-sentence description of what one row represents. I would also keep a "which number do I use" page and hold regular office hours.
+
+
 
 ## What I would not do
 
@@ -37,6 +46,8 @@ Lexroom has no analytics function and a small team, so one wrong number in front
 - Rewrite the event pipeline. I would specify what each event must contain, and Engineering would make the change.
 - Build a streaming pipeline, unless the team conversations reveal a decision that needs data faster than daily.
 - Take on an open queue of one-off requests. Requests go on one list, ranked weekly with the team leads.
+
+
 
 ## Main risks
 
@@ -46,3 +57,4 @@ Lexroom has no analytics function and a small team, so one wrong number in front
 4. **Becoming the only person who pulls numbers.** Self-service, office hours, and an engineer reviewing models from week one reduce this risk.
 5. **Acting on a wrong risk score.** A false high-risk flag makes CS contact a healthy client. Validate the list against CS's knowledge and renewal history before it drives outreach.
 6. **Client data in legal work.** Client questions are confidential and covered by GDPR. Analytics should not need question or answer text. Pseudonymize user identifiers, keep access narrow, and log who queries raw content.
+

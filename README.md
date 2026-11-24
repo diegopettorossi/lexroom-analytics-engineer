@@ -1,8 +1,20 @@
-# Lexroom - Analytics Engineer case (dbt + DuckDB)
+# Lexroom — Analytics Engineer case (dbt + DuckDB)
+
+[![dbt CI](https://github.com/diegopettorossi/lexroom-analytics-engineer/actions/workflows/dbt.yml/badge.svg)](https://github.com/diegopettorossi/lexroom-analytics-engineer/actions/workflows/dbt.yml)
+
+**At a glance** (copy-paste for a portfolio or LinkedIn post):
+
+- **AMA Quality Index** — composite North Star (satisfaction, grounding, latency) at module and company week grain; thresholds and formula covered by unit tests.
+- **Workspace risk score** — ranked CS signals (usage vs platform, satisfaction) with minimum-volume rules so small samples do not drive outreach.
+- **Data trust** — raw defects catalogued with warn vs error severity, reconciliation tests, and a [90-day operating plan](memo_first_90_days.md) for a first analytics hire.
+
+[Full repository](https://github.com/diegopettorossi/lexroom-analytics-engineer) · Lineage: run `dbt docs generate --profiles-dir .` and open `target/index.html` locally (CI runs `dbt docs generate` on every push and PR).
+
+---
 
 Lexroom is an AI platform for legal professionals in Italy, Germany, and Spain. Ask Me Anything (AMA) is its RAG Q&A module. Each answer is tagged with a legal area: civile, penale, tributario, lavoro, amministrativo, societario.
 
-This dbt project (DuckDB) models a synthetic extract of AMA answers, thumbs feedback, users, and workspaces. The 90-day memo is [memo_first_90_days.md](memo_first_90_days.md). The repository is [diegopettorossi/lexroom-analytics-engineer](https://github.com/diegopettorossi/lexroom-analytics-engineer).
+This dbt project (DuckDB) models a synthetic extract of AMA answers, thumbs feedback, users, and workspaces. The 90-day memo is [memo_first_90_days.md](memo_first_90_days.md).
 
 ## Setup
 
